@@ -1,5 +1,6 @@
 package com.chunmi.myapplication
 
+import android.app.PendingIntent
 import android.content.Intent
 import android.nfc.NfcAdapter
 import android.nfc.Tag
@@ -7,41 +8,65 @@ import android.nfc.tech.Ndef
 import android.nfc.tech.NfcA
 import android.os.Bundle
 import android.util.Log
-import android.view.View
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.chunmi.nfc.NfcHelper
 
-private const val TAG = "MainActivity"
 
-class MainActivity : AppCompatActivity() {
+/**
+ * @author : Android-张康
+ * created on: 2022/9/27 17:37
+ * description:
+ */
+private const val TAG = "ReadNfcActivity"
 
-    private val mNfcHelper: NfcHelper by lazy {
-        NfcHelper(this)
+class ReadNfcActivity : AppCompatActivity() {
+
+    private val defaultAdapter: NfcAdapter? by lazy {
+        NfcAdapter.getDefaultAdapter(this)
+    }
+
+    private val pendingIntent: PendingIntent by lazy {
+        PendingIntent.getActivity(
+            this, 0,
+            Intent(this, javaClass).apply {
+                addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            }, 0
+        )
+    }
+
+    private val mMessageTextView: TextView by lazy {
+        findViewById(R.id.nfc_info)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_nfc_read)
+        title = "NFC读取"
+        if (null == defaultAdapter) {
+            mMessageTextView.text = "设备不支持NFC功能"
+        }
+        if (defaultAdapter?.isEnabled != true) {
+            mMessageTextView.append("请在系统设置中开启NFC功能")
+        }
         onNewIntent(intent)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        defaultAdapter?.enableForegroundDispatch(this, pendingIntent, null, null)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        defaultAdapter?.disableForegroundDispatch(this)
     }
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
+        Log.i(TAG, "onNewIntent: $intent")
         intent?.let {
-            resolveIntent(it)
+            resolveIntent(intent)
         }
-    }
-
-    fun openNfc(view: View) {
-        mNfcHelper.startNfcSettings()
-    }
-
-    fun onRead(view: View) {
-        startActivity(Intent(this, ReadNfcActivity::class.java))
-    }
-
-    fun onWriter(view: View) {
-        startActivity(Intent(this, WriterNfcActivity::class.java))
     }
 
     private fun resolveIntent(intent: Intent) {
@@ -130,4 +155,5 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
 }

@@ -1,21 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.chunmi.nfc">
-    <!--NFC 必要的权限-->
-    <uses-permission android:name="android.permission.NFC" />
-    <application>
+<manifest package="com.chunmi.nfc">
 
-        <activity
-            android:name=".NFCSplashActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="text/plain" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.nfc.action.TAG_DISCOVERED" />
-            </intent-filter>
-        </activity>
-    </application>
 </manifest>
